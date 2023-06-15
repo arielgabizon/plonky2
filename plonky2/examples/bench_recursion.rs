@@ -16,7 +16,7 @@ use plonky2::hash::hash_types::RichField;
 use plonky2::iop::witness::{PartialWitness, WitnessWrite};
 use plonky2::plonk::circuit_builder::CircuitBuilder;
 use plonky2::plonk::circuit_data::{CircuitConfig, CommonCircuitData, VerifierOnlyCircuitData};
-use plonky2::plonk::config::{AlgebraicHasher, GenericConfig, PoseidonGoldilocksConfig};
+use plonky2::plonk::config::{AlgebraicHasher, GenericConfig, KeccakGoldilocksConfig};
 use plonky2::plonk::proof::{CompressedProofWithPublicInputs, ProofWithPublicInputs};
 use plonky2::plonk::prover::prove;
 use plonky2::util::serialization::DefaultGateSerializer;
@@ -185,7 +185,7 @@ fn test_serialization<F: RichField + Extendable<D>, C: GenericConfig<D, F = F>, 
 
 fn benchmark(config: &CircuitConfig, log2_inner_size: usize) -> Result<()> {
     const D: usize = 2;
-    type C = PoseidonGoldilocksConfig;
+    type C = KeccakGoldilocksConfig;
     type F = <C as GenericConfig<D>>::F;
 
     // Start with a dummy proof of specified size
@@ -197,25 +197,25 @@ fn benchmark(config: &CircuitConfig, log2_inner_size: usize) -> Result<()> {
         cd.degree_bits()
     );
 
-    // Recursively verify the proof
-    let middle = recursive_proof::<F, C, C, D>(&inner, config, None)?;
-    let (_, _, cd) = &middle;
-    info!(
-        "Single recursion proof degree {} = 2^{}",
-        cd.degree(),
-        cd.degree_bits()
-    );
+    // // Recursively verify the proof
+    // let middle = recursive_proof::<F, C, C, D>(&inner, config, None)?;
+    // let (_, _, cd) = &middle;
+    // info!(
+    //     "Single recursion proof degree {} = 2^{}",
+    //     cd.degree(),
+    //     cd.degree_bits()
+    // );
 
-    // Add a second layer of recursion to shrink the proof size further
-    let outer = recursive_proof::<F, C, C, D>(&middle, config, None)?;
-    let (proof, vd, cd) = &outer;
-    info!(
-        "Double recursion proof degree {} = 2^{}",
-        cd.degree(),
-        cd.degree_bits()
-    );
+    // // Add a second layer of recursion to shrink the proof size further
+    // let outer = recursive_proof::<F, C, C, D>(&middle, config, None)?;
+    // let (proof, vd, cd) = &outer;
+    // info!(
+    //     "Double recursion proof degree {} = 2^{}",
+    //     cd.degree(),
+    //     cd.degree_bits()
+    // );
 
-    test_serialization(proof, vd, cd)?;
+    // test_serialization(proof, vd, cd)?;
 
     Ok(())
 }
